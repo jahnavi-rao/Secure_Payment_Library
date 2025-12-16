@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<body>
+<h2>Secure Payment Demo</h2>
+<div id="app"></div>
+<pre id="out"></pre>
+<script src="../frontend/dist/secure-payment.iife.js"></script>
+<script>
+SecurePayment.create('app',{
+  onSubmit:d=>out.textContent=JSON.stringify(d,null,2),
+  onError:e=>out.textContent='Error: '+e
+});
+</script>
+</body>
+</html>

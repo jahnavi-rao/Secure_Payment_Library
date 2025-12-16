@@ -1,0 +1,55 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { font-family: Arial; }
+    input { display:block; margin-bottom:8px; padding:6px; }
+    .error { color:red; font-size:12px; }
+  </style>
+</head>
+<body>
+  <input id="card" placeholder="Card number" />
+  <input id="exp" placeholder="MM/YY" />
+  <div id="error" class="error"></div>
+
+  <script>
+    function luhn(num) {
+      let sum = 0, alt = false;
+      for (let i = num.length - 1; i >= 0; i--) {
+        let n = +num[i];
+        if (alt) { n *= 2; if (n > 9) n -= 9; }
+        sum += n;
+        alt = !alt;
+      }
+      return sum % 10 === 0;
+    }
+
+    const card = document.getElementById('card');
+    const exp = document.getElementById('exp');
+    const error = document.getElementById('error');
+
+    card.oninput = () => {
+      const v = card.value.replace(/\D/g,'');
+      error.textContent = luhn(v) ? '' : 'Invalid card number';
+    };
+
+    exp.oninput = () => {
+      error.textContent = /^\d{2}\/\d{2}$/.test(exp.value)
+        ? '' : 'Invalid expiry';
+    };
+
+    window.addEventListener('message', e => {
+      if (e.origin !== window.location.origin) return;
+      if (e.data.type === 'SUBMIT') {
+        const c = card.value.replace(/\D/g,'');
+        if (!luhn(c)) return parent.postMessage({type:'ERROR',message:'Invalid card'}, e.origin);
+        parent.postMessage({
+          type:'VALID',
+          payload:{ cardNumber:c, expiryDate:exp.value }
+        }, e.origin);
+      }
+    });
+  </script>
+</body>
+</html>
